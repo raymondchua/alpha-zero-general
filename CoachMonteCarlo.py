@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from Arena import Arena
 from MCTS import MCTS
+from MC import MonteCarlo
 
 log = logging.getLogger(__name__)
 
