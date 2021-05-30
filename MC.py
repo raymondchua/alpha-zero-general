@@ -27,59 +27,65 @@ class MonteCarlo():
         Returns:
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
-        """
+        """      
+        for i in range(self.args.numMCTSSims):
+            self.rollouts(canonicalBoard, self.args.maxRollouts)
+
         s = self.game.stringRepresentation(canonicalBoard)
-        outcomes = []
-        
-        for i in range(self.args.numMCsims):
-          outcomes.append(self.rollouts(canonicalBoard))
+ 
+        counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
-        best_value =  -float('inf')
-        best_action = -1
+        valids = self.Vs[s]
+        cur_best_Q = -float('inf')
+        best_actions = []
+        for a in range(self.game.getActionSize()):
+          if valids[a] and (s,a) in self.Nsa:
+            if self.Qsa[(s, a)] > cur_best_Q:
+              best_actions = [a]
+              cur_best_Q = self.Qsa[(s, a)]
 
-        for value, action in outcomes:
+            elif self.Qsa[(s, a)] == cur_best_Q:
+              best_actions.append(a)
 
-          if value >=best_value:
-            best_value = value
-            best_action = action
+        bestA = np.random.choice(best_actions)
+        probs = [0] * self.game.getActionSize()
+        probs[bestA] = 1
 
-        action_probs = np.zeros((self.game.getActionSize()))
-        action_probs[best_action] = 1
-
-        return action_probs
+        return probs
 
 
 
 
-
-  def rollouts(self, canonicalBoard):
+  def rollouts(self, canonicalBoard, rolloutsCounts):
         """
         This function performs one monte carlo simulation of rollouts
         """
 
         s = self.game.stringRepresentation(canonicalBoard)
-        init_start_state = s
-        init_action = np.random.choice(self.game.getActionSize())
-        isfirstAction = True
-        temp_v = 0 
+
+        
 
 
-        for i in range(self.args.maxRollouts):
+        if s not in self.Es:
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
+        if self.Es[s] != 0:
+            # terminal node
+            return -self.Es[s]
 
-          if s not in self.Es:
-              self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
-          if self.Es[s] != 0:
-              # terminal state
-              temp_v= -self.Es[s]
-              break
+        # if rolloutsCounts == 0:
+        #     _, v = self.nnet.predict(canonicalBoard)
+        #     return -v
 
-          self.Ps[s], v = self.nnet.predict(canonicalBoard)
-          valids = self.game.getValidMoves(canonicalBoard, 1)
-          self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
-          sum_Ps_s = np.sum(self.Ps[s])
-          if sum_Ps_s > 0:
-              self.Ps[s] /= sum_Ps_s  # renormalize
-          else:
+
+        if s not in self.Ps:
+            # leaf node
+            self.Ps[s], v = self.nnet.predict(canonicalBoard)
+            valids = self.game.getValidMoves(canonicalBoard, 1)
+            self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
+            sum_Ps_s = np.sum(self.Ps[s])
+            if sum_Ps_s > 0:
+                self.Ps[s] /= sum_Ps_s  # renormalize
+            else:
                 # if all valid moves were masked make all valid moves equally probable
 
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
@@ -88,27 +94,35 @@ class MonteCarlo():
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
 
-          a = np.random.choice(self.game.getActionSize(), p=self.Ps[s])
-          next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
-          next_s = self.game.getCanonicalForm(next_s, next_player)
+            self.Vs[s] = valids
+            self.Ns[s] = 0
+            return -v
 
-          if isfirstAction:
-            isfirstAction = False
-            init_action = a
+        valids = self.Vs[s]
+        cur_best = -float('inf')
+        best_act = -1
 
-          s = self.game.stringRepresentation(next_s)
-          temp_v = v
-           
+        while True:
+          best_act = np.random.choice(self.game.getActionSize())
+          if valids[best_act]:
+            a = best_act
+            break
+
+        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
+        next_s = self.game.getCanonicalForm(next_s, next_player)
+
+        v = self.rollouts(next_s, rolloutsCounts-1)
+
         if (s, a) in self.Qsa:
-          self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + temp_v) / (self.Nsa[(s, a)] + 1)
-          self.Nsa[(s, a)] += 1
+            self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
+            self.Nsa[(s, a)] += 1
 
         else:
-          self.Qsa[(s, a)] = temp_v
-          self.Nsa[(s, a)] = 1
+            self.Qsa[(s, a)] = v
+            self.Nsa[(s, a)] = 1
 
-
-        return (-temp_v, init_action)
+        self.Ns[s] += 1
+        return -v
 
 
         
