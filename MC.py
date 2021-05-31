@@ -28,7 +28,7 @@ class MonteCarlo():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """      
-        for i in range(self.args.numMCTSSims):
+        for i in range(self.args.numMCsims):
             self.rollouts(canonicalBoard, self.args.maxRollouts)
 
         s = self.game.stringRepresentation(canonicalBoard)
