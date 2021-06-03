@@ -105,6 +105,7 @@ class CoachMonteCarlo():
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
+            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp_MC.pth.tar')
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp_MC.pth.tar')
             pmcts = MonteCarlo(self.game, self.pnet, self.args)

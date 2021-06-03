@@ -106,6 +106,7 @@ class Coach():
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
+            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp_MCTS.pth.tar')
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp_MCTS.pth.tar')
             pmcts = MCTS(self.game, self.pnet, self.args)
