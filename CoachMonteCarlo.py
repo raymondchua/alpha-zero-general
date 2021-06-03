@@ -26,6 +26,7 @@ class CoachMonteCarlo():
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
         self.args = args
         self.mc = MonteCarlo(self.game, self.nnet, self.args)
+        self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []  # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
 
@@ -53,7 +54,7 @@ class CoachMonteCarlo():
             canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
             temp = int(episodeStep < self.args.tempThreshold)
 
-            pi = self.mc.getActionProb(canonicalBoard, temp=temp)
+            pi = self.mcts.getActionProb(canonicalBoard, temp=temp)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
                 trainExamples.append([b, self.curPlayer, p, None])
@@ -83,7 +84,7 @@ class CoachMonteCarlo():
                 iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
                 for _ in tqdm(range(self.args.numEps), desc="Self Play"):
-                    self.mc = MonteCarlo(self.game, self.nnet, self.args)  # reset Monte Carlo
+                    self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
                     iterationTrainExamples += self.executeEpisode()
 
                 # save the iteration examples to the history 
