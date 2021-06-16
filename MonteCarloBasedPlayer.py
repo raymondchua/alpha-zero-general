@@ -17,6 +17,9 @@ class MonteCarloBasedPlayer():
       Ps = Ps * valids  # masking invalid moves
       sum_Ps_s = np.sum(Ps)
 
+      if self.game.getGameEnded(canonicalBoard, 1) != 0:
+        return None
+
 
       if sum_Ps_s > 0:
           Ps /= sum_Ps_s  # renormalize

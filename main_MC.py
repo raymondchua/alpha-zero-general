@@ -22,7 +22,7 @@ args = dotdict({
     'arenaCompare': 40,         # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
     'maxDepth':5,            # Maximum number of rollouts
-    'numMCsims': 25,            # Number of monte carlo simulations
+    'numMCsims': 5,            # Number of monte carlo simulations
     'mc_topk': 3,               #top k actions for monte carlo rollout
 
 
