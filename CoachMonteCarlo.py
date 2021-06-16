@@ -12,6 +12,8 @@ from Arena import Arena
 from MCTS import MCTS
 from MC import MonteCarlo
 
+from MonteCarloBasedPlayer import MonteCarloBasedPlayer
+
 log = logging.getLogger(__name__)
 
 class CoachMonteCarlo():
