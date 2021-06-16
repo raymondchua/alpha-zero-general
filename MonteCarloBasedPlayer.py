@@ -53,10 +53,7 @@ class MonteCarloBasedPlayer():
       # print(self.qsa.sort())
       self.qsa.sort(key=lambda a: a[0])
       self.qsa.reverse()
-      print(self.qsa)
-      # best_action = self.qsa.sort(key=lambda a: a[0]).reverse()[1]
       best_action = self.qsa[0][1]
-      print(best_action)
 
 
       return best_action
