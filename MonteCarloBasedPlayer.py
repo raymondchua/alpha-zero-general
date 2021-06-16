@@ -43,9 +43,9 @@ class MonteCarloBasedPlayer():
 
         #average out values
         avg_value = np.mean(values)
-        qsa.append((avg_value, action))
+        self.qsa.append((avg_value, action))
 
-      best_action = qsa.sort(key=lambda a: a[0]).reverse()[1]
+      best_action = self.qsa.sort(key=lambda a: a[0]).reverse()[1]
 
       return best_action
 
