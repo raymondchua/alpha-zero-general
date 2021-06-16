@@ -6,7 +6,7 @@ class MonteCarloBasedPlayer():
         self.game = game
         self.nnet = nnet
         self.args = args
-        self.mc = MonteCarlo(game, nnet,)
+        self.mc = MonteCarlo(game, nnet, args)
         self.K = self.args.mc_topk
         self.qsa = []
 
