@@ -25,6 +25,7 @@ class MonteCarlo():
         s = self.game.stringRepresentation(canonicalBoard)
         init_start_state = s
         temp_v = 0 
+        isfirstAction = None
 
         for i in range(self.args.maxDepth): #maxDepth
 
