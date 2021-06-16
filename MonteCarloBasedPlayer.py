@@ -46,7 +46,7 @@ class MonteCarloBasedPlayer():
 
       return best_action
 
-    def getActionProb(self, canonicalBoard, temp=temp):
+    def getActionProb(self, canonicalBoard, temp=1):
       action_probs = np.zeros((self.game.getActionSize()))
       best_action = self.play(canonicalBoard)
       action_probs[best_action] = 1
