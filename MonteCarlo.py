@@ -1,3 +1,12 @@
+import logging
+import math
+
+import numpy as np
+
+EPS = 1e-8
+
+log = logging.getLogger(__name__)
+
 class MonteCarlo():
   def __init__(self, game, nnet, args):
         self.game = game
