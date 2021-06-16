@@ -1,5 +1,5 @@
 import numpy as np
-from MC import MonteCarlo
+from MonteCarlo import MonteCarlo
 
 class MonteCarloBasedPlayer():
     def __init__(self, game, nnet, args):
