@@ -8,14 +8,15 @@ class MonteCarloBasedPlayer():
         self.args = args
         self.mc = MonteCarlo(game, nnet, args)
         self.K = self.args.mc_topk
-        self.qsa = []
 
     def play(self, canonicalBoard):
+      self.qsa = []
       s = self.game.stringRepresentation(canonicalBoard)
       Ps, v = self.nnet.predict(canonicalBoard)
       valids = self.game.getValidMoves(canonicalBoard, 1)
       Ps = Ps * valids  # masking invalid moves
       sum_Ps_s = np.sum(Ps)
+
 
       if sum_Ps_s > 0:
           Ps /= sum_Ps_s  # renormalize
@@ -44,8 +45,19 @@ class MonteCarloBasedPlayer():
         #average out values
         avg_value = np.mean(values)
         self.qsa.append((avg_value, action))
+      #   print(self.qsa)
 
-      best_action = self.qsa.sort(key=lambda a: a[0]).reverse()[1]
+      # print(top_k_actions)
+
+      # print(self.qsa)
+      # print(self.qsa.sort())
+      self.qsa.sort(key=lambda a: a[0])
+      self.qsa.reverse()
+      print(self.qsa)
+      # best_action = self.qsa.sort(key=lambda a: a[0]).reverse()[1]
+      best_action = self.qsa[0][1]
+      print(best_action)
+
 
       return best_action
 
