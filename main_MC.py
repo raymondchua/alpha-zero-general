@@ -21,8 +21,10 @@ args = dotdict({
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     'arenaCompare': 40,         # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
-    'maxRollouts':5,            # Maximum number of rollouts
+    'maxDepth':5,            # Maximum number of rollouts
     'numMCsims': 25,            # Number of monte carlo simulations
+    'mc_topk': 3,               #top k actions for monte carlo rollout
+
 
     'checkpoint': './temp/',
     'load_model': False,

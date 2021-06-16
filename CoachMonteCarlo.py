@@ -25,10 +25,11 @@ class CoachMonteCarlo():
         self.nnet = nnet
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
         self.args = args
-        self.mc = MonteCarlo(self.game, self.nnet, self.args)
+        # self.mc = MonteCarlo(self.game, self.nnet, self.args)
         self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []  # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
+        self.MonteCarloBasedPlayer = MonteCarloBasedPlayer(self.game, self.nnet, self.args)
 
     def executeEpisode(self):
         """
@@ -54,7 +55,7 @@ class CoachMonteCarlo():
             canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
             temp = int(episodeStep < self.args.tempThreshold)
 
-            pi = self.mcts.getActionProb(canonicalBoard, temp=temp)
+            pi = self.MonteCarloBasedPlayer.getActionProb(canonicalBoard, temp=temp)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
                 trainExamples.append([b, self.curPlayer, p, None])
@@ -108,10 +109,10 @@ class CoachMonteCarlo():
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp_MC.pth.tar')
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp_MC.pth.tar')
-            pmcts = MonteCarlo(self.game, self.pnet, self.args)
+            pmcts = MonteCarloBasedPlayer(self.game, self.pnet, self.args)
 
             self.nnet.train(trainExamples)
-            nmcts = MonteCarlo(self.game, self.nnet, self.args)
+            nmcts = MonteCarloBasedPlayer(self.game, self.nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
